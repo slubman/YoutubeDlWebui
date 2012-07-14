@@ -1,0 +1,7 @@
+*.pyc
+*.swp
+*.tmproj
+htmlcov
+.coverage
+local_settings.py
+*.komodoproject
