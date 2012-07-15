@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from celery import Celery
+from celery.utils.log import get_task_logger
 import os
 import tempfile
 import smtplib
@@ -10,6 +11,7 @@ from dateutil.relativedelta import *
 from dateutil.tz import tzutc
 from django.conf import settings
 
+logger = get_task_logger(__name__)
 celery =  Celery('tasks', broker=settings.BROKER_URL)
 
 __videos = ('.webm', '.mp4', '.flv')
@@ -17,45 +19,50 @@ __videos = ('.webm', '.mp4', '.flv')
 # Download a video and mail the URL for the download
 @celery.task
 def download(url, email):
-   print 'Downloading: %s' % (url)
-   print 'Send result to: %s' % (email)
+   logger.info('Downloading: %s' % (url))
+   logger.info('Send result to: %s' % (email))
    script_file = os.getcwd() + '/lib/youtube-dl/youtube-dl'
    args = ['youtube-dl', script_file, '--title']
    if settings.DEBUG == False:
       args += ['--quiet', '--no-progress']
    args += [url]
-   print 'PWD: %s' % (os.getcwd())
-   print 'Command: %s' % (args)
+   logger.debug('PWD: %s' % (os.getcwd()))
+   logger.debug('DL_DIR: %s' % (settings.DOWNLOAD_DIRECTORY))
+   logger.debug('Command: %s' % (args))
 
    directory = None
    name = ''
    expiration = datetime.now(tzutc()) + relativedelta(day=+1)
    try:
       # Create a directory for the download
-      directory = tempfile.mkdtemp(prefix='ytdlwui')
+      directory = tempfile.mkdtemp(prefix='ytdlwui', dir=settings.DOWNLOAD_DIRECTORY)
       # Go to the created directory
       os.chdir(directory)
-      print 'PWD: %s' % (os.getcwd())
+      logger.debug('PWD: %s' % (os.getcwd()))
       # Download video
       os.spawnvp(os.P_WAIT, 'python2', args)
-      print 'Download done'
+      logger.info('Download done')
       for entry in os.listdir(directory):
          for extension in __videos:
             if entry.endswith(extension):
                name = entry
-               print 'Video file name: %s' % (name)
-               print 'Download available until: %s' % (expiration.strftime('%Y-%m-%d %H:%M:%S%z'))
+               logger.debug('Video file name: %s' % (name))
+               logger.info('Download available until: %s' % (expiration.strftime('%Y-%m-%d %H:%M:%S%z')))
                break
          if len(name) > 0:
             break
    except Exception as e:
-      print 'Download failed: %s' % (e)
+      logger.info('Download failed: %s' % (e))
 
+   # If there is no file…do not need to send a mail
+   if len(name) == 0:
+      return
+   
    # Send email
-   print 'Preparing mail'
+   logger.debug('Preparing mail')
    msg = MIMEText('''Hi,
 
-You have requested the download the following video:
+You have requested to download the following video:
 %s
 
 I'm pleased to let you download the video there:
@@ -75,9 +82,7 @@ youtube-dl\'s (simple) webui
    s.starttls()
    s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
    s.sendmail(settings.DEFAULT_FROM_MAIL, email, msg.as_string())
-   print 'Mail sent'
-   
-   print 'Task done.'
+   logger.info('Mail sent')
 
 #
 @celery.task
