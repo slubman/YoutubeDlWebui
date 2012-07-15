@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Django settings for youtube_dl_wui project.
 
 DEBUG = True
@@ -122,6 +123,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'djcelery',
     'youtube_dl_wui',
 )
 
@@ -153,3 +155,6 @@ LOGGING = {
         },
     }
 }
+
+import djcelery
+djcelery.setup_loader()
