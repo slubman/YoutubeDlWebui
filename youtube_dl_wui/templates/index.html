@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>youtube-dl webui</title>
+</head>
+
+<body>
+
+<form action="." method="post">
+    {% csrf_token %}
+    <!--
+    <label for="url">Video URL:&nbsp;<input type="text" name="url"></label>
+    <label for="email">Your mail address:&nbsp;<input type="email" name="email"></label>
+    -->
+    {{ video.as_p }}
+    <input type="submit" name="download" value="Download">
+</form>
+
+</body>
+</html>
