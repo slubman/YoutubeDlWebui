@@ -156,5 +156,12 @@ LOGGING = {
     }
 }
 
+CELERY_IMPORTS = ('youtube_dl_wui.tasks')
+
+try:
+	from local_settings import *
+except ImportError:
+	pass
+
 import djcelery
 djcelery.setup_loader()
