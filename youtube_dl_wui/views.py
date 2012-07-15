@@ -15,6 +15,8 @@ def home(request):
 			url = form.cleaned_data['url']
 			mail = form.cleaned_data['email']
 			
+			from tasks import download
+			download.delay(url, mail)
 			#form = VideoForm()
 	else:
 		form = VideoForm()
