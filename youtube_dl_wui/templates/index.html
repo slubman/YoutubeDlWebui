@@ -7,6 +7,11 @@
 
 <body>
 
+{% if video.is_valid %}
+    <p>Your video is being downloaded, you will receive a mail with the link to the download when done</p>
+{% endif %}
+
+<h1>Download {% if video.is_valid %}another{% else %}a{% endif %} video</h1>
 <form action="." method="post">
     {% csrf_token %}
     <!--
