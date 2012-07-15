@@ -5,5 +5,7 @@ billiard==2.7.3.10
 celery==3.0.1
 django-celery==3.0.1
 kombu==2.2.6
-python-dateutil==1.5
+python-dateutil==2.1
+pytz==2012c
+six==1.1.0
 wsgiref==0.1.2
