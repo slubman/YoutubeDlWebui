@@ -21,12 +21,13 @@ __videos = ('.webm', '.mp4', '.flv')
 def download(url, email):
    logger.info('Downloading: %s' % (url))
    logger.info('Send result to: %s' % (email))
-   script_file = os.getcwd() + '/lib/youtube-dl/youtube-dl'
+   script_directory = os.getcwd()
+   script_file = script_directory + '/lib/youtube-dl/youtube-dl'
    args = ['youtube-dl', script_file, '--title']
    if settings.DEBUG == False:
       args += ['--quiet', '--no-progress']
    args += [url]
-   logger.debug('PWD: %s' % (os.getcwd()))
+   logger.debug('PWD: %s' % (script_directory))
    logger.debug('DL_DIR: %s' % (settings.DOWNLOAD_DIRECTORY))
    logger.debug('Command: %s' % (args))
 
@@ -38,6 +39,7 @@ def download(url, email):
       directory = tempfile.mkdtemp(prefix='ytdlwui', dir=settings.DOWNLOAD_DIRECTORY)
       # Go to the created directory
       os.chdir(directory)
+      os.chmod(directory, 0711)
       logger.debug('PWD: %s' % (os.getcwd()))
       # Download video
       os.spawnvp(os.P_WAIT, 'python2', args)
@@ -46,6 +48,7 @@ def download(url, email):
          for extension in __videos:
             if entry.endswith(extension):
                name = entry
+               os.chmod(name, 0644)
                logger.debug('Video file name: %s' % (name))
                logger.info('Download available until: %s' % (expiration.strftime('%Y-%m-%d %H:%M:%S%z')))
                break
@@ -53,6 +56,8 @@ def download(url, email):
             break
    except Exception as e:
       logger.info('Download failed: %s' % (e))
+   finally:
+      os.chdir(script_directory)
 
    # If there is no file…do not need to send a mail
    if len(name) == 0:
