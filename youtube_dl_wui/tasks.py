@@ -47,7 +47,7 @@ def download(url, email):
       for entry in os.listdir(directory):
          for extension in __videos:
             if entry.endswith(extension):
-               name = entry
+               name = entry.decode('utf-8')
                os.chmod(name, 0644)
                logger.debug('Video file name: %s' % (name))
                logger.info('Download available until: %s' % (expiration.strftime('%Y-%m-%d %H:%M:%S%z')))
