@@ -65,7 +65,7 @@ def download(url, email):
    
    # Send email
    logger.debug('Preparing mail')
-   msg = MIMEText('''Hi,
+   msg = MIMEText(u'''Hi,
 
 You have requested to download the following video:
 %s
@@ -79,7 +79,7 @@ The download will be available for 1 day, until:
 Best regards
 --
 youtube-dl\'s (simple) webui
-      ''' % (url, settings.BASE_URL, os.path.basename(directory), name, expiration.strftime('%Y-%m-%d %H:%M:%S%z')))
+      ''' % (url, settings.BASE_URL, os.path.basename(directory), name, expiration.strftime('%Y-%m-%d %H:%M:%S%z')), 'plain', 'utf-8')
    msg['From'] = settings.DEFAULT_FROM_MAIL
    msg['To'] = email
    msg['Subject'] = 'Video download finished'
